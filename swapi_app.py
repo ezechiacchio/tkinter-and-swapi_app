@@ -8,45 +8,29 @@ from PIL import ImageTk,Image
 import requests
 import json
 
-from Boton_custom import Boton_Custom
-
 root=Tk()
 root.title("Star Wars Info")
 root.geometry("400x400")
 #https://swapi.dev/api/planets
 #https://swapi.dev/api/people
 #https://swapi.dev/api/starships
-def get_planetas():
-    global planetas
-    planetas=Tk()
-    planetas.title("Planetas")
-    planetas.geometry("400x300")
-    request_api = requests.get("https://swapi.dev/api/planets")
-    try:
-        api = json.loads(request_api.content)    
-        for elemento in api['results']:
-            label = Label(planetas,text = elemento["name"],borderwidth = 6,
-                        width = 40,
-                        relief="ridge")
-            label.pack()
-    except Exception as e:
-        api = "Error"
 
 def get_personajes():
     global personajes
-    personajes=Tk()
+    personajes=Toplevel()
     personajes.title("Personajes")
     personajes.geometry("400x300")
     request_api = requests.get("https://swapi.dev/api/people")
     try:
         api = json.loads(request_api.content)    
-        for elemento in api['results']:
-            label = Label(personajes,text = elemento["name"],borderwidth = 6,
-                        width = 40,
-                        relief="ridge")
-            label.pack()
+        for e,elemento in enumerate(api['results']):
+            boton = Button(personajes,text = elemento["name"],borderwidth = 6,
+                        width = 40, relief="ridge",command=lambda i = elemento["name"]:get_imagen_personaje(i))
+            boton.grid(row=e,column=0)
     except Exception as e:
         api = "Error"
+    boton = Button(personajes,text="Volver",command=personajes.withdraw)
+    boton.grid(row=1,column=2)
 
 def get_vehiculos():
     global vehiculos
@@ -58,15 +42,40 @@ def get_vehiculos():
         api = json.loads(request_api.content)       
         for e, elemento in enumerate(api['results']): 
             boton = Button(vehiculos,text = elemento["name"],borderwidth = 6,
-                         width = 40, relief="ridge",command=lambda i=elemento["name"]: get_imagen(i))
+                         width = 40, relief="ridge",command=lambda i=elemento["name"]: get_imagen_vehiculos(i))
             boton.grid(row=e,column=0)
-        label = Label(vehiculos,text="    ")
-        label.grid(row=0,column=1)
 
     except Exception as e:
         api = "Error"
+    boton = Button(vehiculos,text="Volver",command=vehiculos.withdraw)
+    boton.grid(row=1,column=3)
 
-def get_imagen(nombre):
+def get_imagen_personaje(nombre):
+    global label
+    global imagen_personaje
+    global frame
+    frame =  LabelFrame(personajes)
+    personajes_dict = {
+                'Luke Skywalker' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/luke_sky.jpg',
+                'C-3PO' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/c3po.jpg',
+                'R2-D2' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/r2d2.webp',
+                'Darth Vader' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/darth_vader.webp',
+                'Leia Organa' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/leia.webp',
+                'Owen Lars' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/owen_lars.jpg',
+                'Beru Whitesun lars' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/beru_whitesun.webp',
+                'R5-D4' : r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/R5d4.webp',
+                'Biggs Darklighter': r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/biggs_darklighter.jpg',
+                "Obi-Wan Kenobi": r'C:/Users/ezequiel.chiacchio/Eze/pthon/tkinter/imagenes/swapi_app/obi_wan.jpeg'
+                }
+    frame.destroy()
+    frame = LabelFrame(personajes,padx=20,pady=20)
+    frame.grid(row=0,column=2,padx=10,pady=10)
+    frame.configure(text=nombre)
+    imagen_personaje = ImageTk.PhotoImage(Image.open(personajes_dict[nombre]).resize((500,400),Image.ANTIALIAS))
+    label = Label(frame,image=imagen_personaje)
+    label.pack()
+
+def get_imagen_vehiculos(nombre):
     global label
     global imagen_vehiculos
     global frame
@@ -93,7 +102,6 @@ def get_imagen(nombre):
 
 
 
-boton = Button(root,text="Mostrar planetas",command=get_planetas).pack()
 boton = Button(root,text="Mostrar personajes",command=get_personajes).pack()
 boton = Button(root,text="Mostrar vehiculos",command=get_vehiculos).pack()
 
